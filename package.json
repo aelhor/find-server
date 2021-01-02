@@ -1,11 +1,14 @@
 {
   "name": "backend-jwt",
   "version": "1.0.0",
-  "description": "",
+  "description": "Q&A WEBSITE",
   "main": "index.js",
+  "engine": {
+    "node": "12.13.1",
+    "npm" : "6.12.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild" : "NPM_CONFIG_PRODUCTION=false npm install --perfix frontend-jwt && npm run build --perfix frontend-jwt"
+    "start":"node server.js" 
   },
   "keywords": [],
   "author": "aelhor",
@@ -15,7 +18,7 @@
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
+    "dotenv": "^8.2.0", 
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.6",

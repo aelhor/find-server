@@ -17,7 +17,7 @@ app.use('/', questionRoute)
 
 // Handle Not Found Routes 
 app.use((req, res, next)=> { 
-    const error = new Error(`Not Found Babe ${req.originalUrl}`)
+    const error = new Error(`${req.originalUrl} Not Found Babe `)
     res.status(404)
     next(error)
 })
@@ -33,21 +33,29 @@ app.use((error, req, res, next)=> {
     )}
 )
 
-// deploy 
+// deploy to heroku
 // serve static assets if in production 
 if (process.env.NODE_ENV === 'production'){
     //set static folder
     app.use(express.static('../frontend-jwt/build'))
 
     app.get('*', (req, res)=>{
-        res.sendFile(path.resolve(__dirname, 'frontend-jwt', 'build', 'index.html'))
+        res.sendFile(path.resolve(__dirname, '../frontend-jwt', 'build', 'index.html'))
     })
-
 }
-// console.log(path.dirname(__dirname)); // f:/jwt
+ console.log(path.resolve(__dirname, '../frontend-jwt', 'build', 'index.html'));
+
+
+
+
+
+
+
+
+
 // db connection 
 mongoose.connect(
-    process.env.DB_URL,
+    process.env.MONGO_URI,
     {
         useNewUrlParser : true,
         useUnifiedTopology: true  
