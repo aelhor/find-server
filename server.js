@@ -17,7 +17,7 @@ app.use('/', questionRoute)
 
 // Handle Not Found Routes 
 app.use((req, res, next)=> { 
-    const error = new Error(`${req.originalUrl} Not Found Babe `)
+    const error = new Error(`${req.originalUrl} Page Not Found... `)
     res.status(404)
     next(error)
 })
