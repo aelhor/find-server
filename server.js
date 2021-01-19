@@ -43,14 +43,6 @@ if (process.env.NODE_ENV === 'production'){
         res.sendFile(path.resolve(__dirname, '../frontend-jwt', 'build', 'index.html'))
     })
 }
- console.log(path.resolve(__dirname, '../frontend-jwt', 'build', 'index.html'));
-
-
-
-
-
-
-
 
 
 // db connection 

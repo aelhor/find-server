@@ -105,21 +105,27 @@ router.patch('/questions/answer/:quesId', async(req, res)=> {
 })
 
 // Like a question 
-router.post('/question/like/:quesId', async(req,res)=>{
+router.patch('/questions/like/:quesId', async(req,res)=>{
     try {
-        const likedQues = await Ques.updateOne({_id : req.params.quesId}, {
-            likes : + 1
-        })
+        const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId}, { $inc: { likes : 1 } })
           
-        res.status(200).send(`You Like The Question ${likes} on it `)
-
+        res.status(200).send(`You Liked The Question`)
 
     } catch (error) {
         res.status(500).send(error.message)
     }
 })
 
-// delete question =>[not completed] just the user sent the question should be able to delete it 
+// disLike a question 
+router.patch('/questions/dislike/:quesId', async(req,res)=>{
+    try {
+        const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId,}, {$inc: { likes : -1 }} )
+        res.status(200).send(`You disLiked The Question`)
+
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+})
 
 router.delete('/questions/delete/:id', async(req, res)=> { 
     const quesId = req.params.id
