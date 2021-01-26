@@ -22,7 +22,8 @@ const userSchema = new Schema({
         },
     
     following : Array,
-    followers : Array
+    followers : Array,
+    
         
     
 }, {timestamps :true} )

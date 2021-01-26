@@ -61,7 +61,7 @@ router.post('/questions/ask/:userId', async(req, res)=>{
                 try{ 
                     const newQues =  new Ques({
                         body : body,
-                        askedTo : userId  // ?
+                        askedTo : userId, 
                     })
                     newQues.save()
                     res.status(200).json({
@@ -108,20 +108,16 @@ router.patch('/questions/answer/:quesId', async(req, res)=> {
 router.patch('/questions/like/:quesId', async(req,res)=>{
     try {
         const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId}, { $inc: { likes : 1 } })
-          
         res.status(200).send(`You Liked The Question`)
-
     } catch (error) {
         res.status(500).send(error.message)
     }
 })
-
 // disLike a question 
 router.patch('/questions/dislike/:quesId', async(req,res)=>{
     try {
         const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId,}, {$inc: { likes : -1 }} )
         res.status(200).send(`You disLiked The Question`)
-
     } catch (error) {
         res.status(500).send(error.message)
     }
