@@ -106,18 +106,36 @@ router.patch('/questions/answer/:quesId', async(req, res)=> {
 
 // Like a question 
 router.patch('/questions/like/:quesId', async(req,res)=>{
+    const activeUserId = req.body.activeUserId
+    const activeUserName= req.body.activeUserName
     try {
-        const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId}, { $inc: { likes : 1 } })
-        res.status(200).send(`You Liked The Question`)
+        const likedQues = await Ques.updateOne({_id : req.params.quesId}, {
+            $addToSet: {
+                likes :{userId: activeUserId, userName : activeUserName }
+            }
+        })
+        res.status(200).json({
+            message : `You Liked The Question`, 
+            likedQues : likedQues
+        })
     } catch (error) {
         res.status(500).send(error.message)
     }
 })
 // disLike a question 
 router.patch('/questions/dislike/:quesId', async(req,res)=>{
+    const activeUserId = req.body.activeUserId
+    const activeUserName= req.body.activeUserName
     try {
-        const likedQues = await Ques.findOneAndUpdate({_id : req.params.quesId,}, {$inc: { likes : -1 }} )
-        res.status(200).send(`You disLiked The Question`)
+        const likedQues = await Ques.updateOne({_id : req.params.quesId}, {
+            $pull: {
+                likes :{userId: activeUserId, userName : activeUserName }
+            }
+        })
+        res.status(200).json({
+            message : `You disLiked The Question`, 
+            likedQues : likedQues
+        })
     } catch (error) {
         res.status(500).send(error.message)
     }

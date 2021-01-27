@@ -12,8 +12,8 @@ router.post('/signup',async (req, res)=> {
     try{
         const signinUser = await User.findOne({email : email})
         if (signinUser) { 
-            return res.status(409).send('User already exist')
-        }
+            return res.status(409).send('User Name or Email already exist')
+        }   
         else { 
             // hash the passworrd 
             bcrypt.hash(password, 10, async(error, hash)=> { 
@@ -42,14 +42,14 @@ router.post('/signup',async (req, res)=> {
                         })
                     }
                     catch(error) { 
-                        res.status(500).send(error.message)
+                        res.status(409).send(error) // 
                     }
                 }
             })
         }
     }
     catch(error){
-        res.status(500).send(error.message)
+        res.status(503).send(error.message)
     }
 })
 
