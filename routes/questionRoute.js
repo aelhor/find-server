@@ -36,7 +36,7 @@ router.get('/questions/:userID' ,async(req, res)=> {
                 res.status(200).json(questions)
             }
             catch(error){ 
-                res.status(500).send(error.message)
+                res.status(500).send(error)
             }
         }
         else{
@@ -47,6 +47,17 @@ router.get('/questions/:userID' ,async(req, res)=> {
         res.status(500).send(error)
     }
     
+})
+
+// get a specific question
+router.get('/question/:quesId', async(req, res)=>{ 
+    const quesId = req.params.quesId
+    try {
+        const ques = await Ques.findOne({_id : quesId})
+        res.status(200).json({ques : ques})
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
 })
 
 // ask a question to specific user 
@@ -113,7 +124,7 @@ router.patch('/questions/like/:quesId', async(req,res)=>{
             $addToSet: {
                 likes :{userId: activeUserId, userName : activeUserName }
             }
-        })
+        }) 
         res.status(200).json({
             message : `You Liked The Question`, 
             likedQues : likedQues

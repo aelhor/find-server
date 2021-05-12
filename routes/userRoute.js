@@ -38,7 +38,6 @@ router.post('/signup',async (req, res)=> {
                                 email : newUser.email,
                             },
                             token : signinToken
-
                         })
                     }
                     catch(error) { 
@@ -344,6 +343,7 @@ router.get('/users', async(req, res)=> {
         res.status(500).send(error.message)
      }
 })
+
 router.get('/test', (req, res)=> { 
     res.send('test Works')
 })
