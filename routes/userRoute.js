@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 const { checkAuth } = require('./auth')
-const maxAge = 2 * 1000 *60 *60 * 24
+const maxAge = 4 * 1000 *60 *60 * 24
 require('dotenv').config('../.env')
 
 router.post('/signup',async (req, res)=> { 
