@@ -3,8 +3,9 @@ const router = express.Router()
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
+const { checkAuth } = require('./auth')
+const maxAge = 2 * 1000 *60 *60 * 24
 require('dotenv').config('../.env')
-
 
 router.post('/signup',async (req, res)=> { 
     const {email, password, userName} = req.body
@@ -22,7 +23,7 @@ router.post('/signup',async (req, res)=> {
                 }
                 else {
                     try{
-                        const signinToken = jwt.sign({email :email}, process.env.SECRET_KEY)
+                        const signupToken = jwt.sign({email :email}, process.env.SECRET_KEY, {expiresIn : maxAge})
                         // create the new user 
                         const newUser =  new User({
                             email : email, 
@@ -30,6 +31,8 @@ router.post('/signup',async (req, res)=> {
                             password : hash, 
                         })
                         const saveduser = await newUser.save()
+                        res.cookie('jwt', signupToken ,{maxAge : maxAge})
+                        
                         return res.status(200).json({
                             message : 'User Created', 
                             newUser : {
@@ -37,8 +40,8 @@ router.post('/signup',async (req, res)=> {
                                 userName : newUser.userName ,
                                 email : newUser.email,
                             },
-                            token : signinToken
                         })
+
                     }
                     catch(error) { 
                         res.status(409).send(error) // 
@@ -66,11 +69,12 @@ router.post('/login', async(req, res)=>{
                 }
                 if (result){
                     // password is correct 
-                    const token = jwt.sign({email : user.email}, process.env.SECRET_KEY, {expiresIn : '1h'})
+                    const token = jwt.sign({email : user.email}, process.env.SECRET_KEY, {expiresIn : maxAge })
+                    res.cookie('jwt', token ,{httpOnly : true, maxAge : maxAge}) // not working ?
                     return res.status(200).json({
-                        token : token, 
                         userName : user.userName , 
-                        id : user._id
+                        id : user._id,
+                        token : token
                     })
                 }
                 return res.status(500).send('Invalid password ')
@@ -86,7 +90,7 @@ router.post('/login', async(req, res)=>{
 })
 
 // get a specific user's data 
-router.get('/users/:userId', async(req, res)=>{ 
+router.get('/users/:userId', checkAuth, async(req, res)=>{ 
     const id = req.params.userId
     try {
         const user = await User.findOne({_id : id})
@@ -119,7 +123,7 @@ const checkInfoBeforeDelete = (req, res, next)=> {
 }
 //[not completed]
 // delete a user  [ should be protected & should check if that client own thet account ]
-router.delete('/users/:userId' ,async(req, res)=> { 
+router.delete('/users/:userId' ,checkAuth, async(req, res)=> { 
     const userId = req.params.userId
     const {password} = req.body
     try{
@@ -158,7 +162,7 @@ router.delete('/users/:userId' ,async(req, res)=> {
 })
 
 // follow a spacific user 
-router.post('/users/follow/:activeUserId', async(req, res)=>{ 
+router.post('/users/follow/:activeUserId', checkAuth, async(req, res)=>{ 
     const userId = req.params.activeUserId
     const targetUserId = req.body.targetId // targetUser : the one u want to follow
     const targetUserName = req.body.targetUserName
@@ -196,7 +200,7 @@ router.post('/users/follow/:activeUserId', async(req, res)=>{
 })
 
 //unFollow
-router.post('/users/unfollow/:activeUserId', async(req, res)=>{ 
+router.post('/users/unfollow/:activeUserId', checkAuth, async(req, res)=>{ 
     const userId = req.params.activeUserId
     const targetUserId = req.body.targetId // targetUser : the one u want to follow
     const targetUserName = req.body.targetUserName
@@ -344,7 +348,7 @@ router.get('/users', async(req, res)=> {
      }
 })
 
-router.get('/test', (req, res)=> { 
-    res.send('test Works')
+router.post('/testjwt',checkAuth, (req, res)=> { 
+   res.status(200).send('cookies works')
 })
 module.exports = router

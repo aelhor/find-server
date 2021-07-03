@@ -1,31 +1,27 @@
 const express = require('express')
 const router = express.Router()
-const jwt = require('jsonwebtoken')
 const Ques = require('../models/questionModel')
 const User = require('../models/userModel')
 require('dotenv').config('../.env')
-
-
-const checkAuth =  (req ,res , next) => { 
-    try{
-        // console.log(req.headers);
-        // const token = req.headers.authorization.split(' ')[1]
-        const token = req.query.token
-        console.log('token : ',token ) // 
-
-        const decoded =  jwt.verify(token, process.env.SECRET_KEY)
-
-        console.log('Decoded : ', decoded) // 
-        
-        next()
-    }
-    catch(error){ 
-        res.status(500).send(error)
-    }
-}
+const { checkAuth } = require('./auth')
+// let checkAuth = (req ,res , next) => { 
+//     let authHeader = req.headers['authorization']
+//     token = authHeader && authHeader.split(' ')[1]
+//     console.log('authHeader', authHeader)
+//     if (token == null) return res.status(401)
+//     try {
+//             let decoded = jwt.verify(token, process.env.SECRET_KEY);
+//             console.log(decoded)
+//             next()
+//         } 
+//     catch(err) {
+//             res.status(403).send(err)
+//     }
+    
+// }
 
 // get all the ques for a specific user 
-router.get('/questions/:userID' ,async(req, res)=> { 
+router.get('/questions/:userID' ,checkAuth ,async(req, res)=> { 
     const userId = req.params.userID 
     try{
          // check if the userId is exsit 
@@ -50,7 +46,7 @@ router.get('/questions/:userID' ,async(req, res)=> {
 })
 
 // get a specific question
-router.get('/question/:quesId', async(req, res)=>{ 
+router.get('/question/:quesId', checkAuth, async(req, res)=>{ 
     const quesId = req.params.quesId
     try {
         const ques = await Ques.findOne({_id : quesId})
@@ -61,7 +57,7 @@ router.get('/question/:quesId', async(req, res)=>{
 })
 
 // ask a question to specific user 
-router.post('/questions/ask/:userId', async(req, res)=>{ 
+router.post('/questions/ask/:userId',checkAuth, async(req, res)=>{ 
     const {body} = req.body 
     const userId = req.params.userId
     if (body){
@@ -100,7 +96,7 @@ router.post('/questions/ask/:userId', async(req, res)=>{
 })
 
 // answer a question 
-router.patch('/questions/answer/:quesId', async(req, res)=> { 
+router.patch('/questions/answer/:quesId',checkAuth , async(req, res)=> { 
     const quesId = req.params.quesId
     const {answer} = req.body
     try {
@@ -116,7 +112,7 @@ router.patch('/questions/answer/:quesId', async(req, res)=> {
 })
 
 // Like a question 
-router.patch('/questions/like/:quesId', async(req,res)=>{
+router.patch('/questions/like/:quesId',checkAuth , async(req,res)=>{
     const activeUserId = req.body.activeUserId
     const activeUserName= req.body.activeUserName
     try {
@@ -134,7 +130,7 @@ router.patch('/questions/like/:quesId', async(req,res)=>{
     }
 })
 // disLike a question 
-router.patch('/questions/dislike/:quesId', async(req,res)=>{
+router.patch('/questions/dislike/:quesId',checkAuth , async(req,res)=>{
     const activeUserId = req.body.activeUserId
     const activeUserName= req.body.activeUserName
     try {
@@ -152,7 +148,7 @@ router.patch('/questions/dislike/:quesId', async(req,res)=>{
     }
 })
 
-router.delete('/questions/delete/:id', async(req, res)=> { 
+router.delete('/questions/delete/:id',checkAuth , async(req, res)=> { 
     const quesId = req.params.id
     try {
         const deletedQues = await Ques.findOneAndDelete({_id : quesId })

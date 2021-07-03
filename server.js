@@ -3,6 +3,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const path = require('path')
 const app = express()
+const cookieParser = require('cookie-parser')
 
 const userRoute = require('./routes/userRoute')
 const questionRoute = require('./routes/questionRoute')
@@ -10,6 +11,8 @@ require('dotenv').config()
 
 app.use(cors())
 app.use(express.json()) 
+app.use(cookieParser())
+
 
 // routes
 app.use('/', userRoute)
