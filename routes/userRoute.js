@@ -348,7 +348,5 @@ router.get('/users', async(req, res)=> {
      }
 })
 
-router.post('/testjwt',checkAuth, (req, res)=> { 
-   res.status(200).send('cookies works')
-})
+
 module.exports = router

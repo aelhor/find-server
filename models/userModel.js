@@ -20,7 +20,7 @@ const userSchema = new Schema({
             required: true,
             unique : true ,  
         },
-    
+    facebookId : String ,
     following : Array,
     followers : Array,
     

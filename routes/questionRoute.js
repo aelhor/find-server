@@ -4,21 +4,6 @@ const Ques = require('../models/questionModel')
 const User = require('../models/userModel')
 require('dotenv').config('../.env')
 const { checkAuth } = require('./auth')
-// let checkAuth = (req ,res , next) => { 
-//     let authHeader = req.headers['authorization']
-//     token = authHeader && authHeader.split(' ')[1]
-//     console.log('authHeader', authHeader)
-//     if (token == null) return res.status(401)
-//     try {
-//             let decoded = jwt.verify(token, process.env.SECRET_KEY);
-//             console.log(decoded)
-//             next()
-//         } 
-//     catch(err) {
-//             res.status(403).send(err)
-//     }
-    
-// }
 
 // get all the ques for a specific user 
 router.get('/questions/:userID' ,checkAuth ,async(req, res)=> { 
@@ -163,6 +148,9 @@ router.delete('/questions/delete/:id',checkAuth , async(req, res)=> {
     }
 })
 
+router.get('/v',checkAuth, (req, res)=> { 
+    res.status(200).send('kifghoplsd')
+ })
 
 
 router.get('/protectedRoute', checkAuth, (req, res)=> { 

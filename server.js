@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 const path = require('path')
 const app = express()
 const cookieParser = require('cookie-parser')
+const FacebookStrategy = require('passport-facebook').Strategy
+const passport = require('passport')
 
 const userRoute = require('./routes/userRoute')
 const questionRoute = require('./routes/questionRoute')
@@ -13,10 +15,49 @@ app.use(cors())
 app.use(express.json()) 
 app.use(cookieParser())
 
-
 // routes
 app.use('/', userRoute)
 app.use('/', questionRoute)
+app.get('/express', (req, res)=> { 
+  res.send('test Route working ...')
+})
+
+
+
+// facebook login 
+passport.use(new FacebookStrategy({
+    clientID: process.env.CLIENT_ID_FB,
+    clientSecret: process.env.CLIENT_SECRET_FB,
+    callbackURL: "http://localhost:3000/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+app.get('/auth/facebook', passport.authenticate('facebook'),(req, res)=> {
+  res.send('Facebook Auth')
+});
+ 
+app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Handle Not Found Routes 
 app.use((req, res, next)=> { 
