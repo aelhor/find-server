@@ -15,11 +15,13 @@ app.use(cors())
 app.use(express.json()) 
 app.use(cookieParser())
 
+
 // routes
 app.use('/', userRoute)
 app.use('/', questionRoute)
 app.get('/express', (req, res)=> { 
-  res.send('test Route working ...')
+  // Not Working 
+  res.redirect('https://www.youtube.com/watch?v=4wnjn8XB1xE&t=787s')
 })
 
 
@@ -30,11 +32,19 @@ passport.use(new FacebookStrategy({
     clientSecret: process.env.CLIENT_SECRET_FB,
     callbackURL: "http://localhost:3000/auth/facebook/callback"
   },
-  function(accessToken, refreshToken, profile, cb) {
+
+  (accessToken, refreshToken, profile, cb)=>{
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
       return cb(err, user);
     });
+    console.log('profile', profile)
+    console.log('accessToken', accessToken)
+    console.log('refreshToken', refreshToken)
+
+    // check if user exist 
   }
+
+
 ));
 app.get('/auth/facebook', passport.authenticate('facebook'),(req, res)=> {
   res.send('Facebook Auth')
@@ -44,6 +54,16 @@ app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRed
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
+})
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+ 
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function (err, user) {
+    done(err, user);
+  });
 });
 
 
