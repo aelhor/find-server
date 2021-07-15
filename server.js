@@ -30,7 +30,7 @@ app.get('/express', (req, res)=> {
 passport.use(new FacebookStrategy({
     clientID: process.env.CLIENT_ID_FB,
     clientSecret: process.env.CLIENT_SECRET_FB,
-    callbackURL: "http://localhost:3000/auth/facebook/callback"
+    callbackURL: "https://chiedimi.herokuapp.com/auth/facebook/callback"
   },
 
   (accessToken, refreshToken, profile, cb)=>{
