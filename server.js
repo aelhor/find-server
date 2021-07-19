@@ -24,33 +24,42 @@ app.get('/express', (req, res)=> {
   res.redirect('https://www.youtube.com/watch?v=4wnjn8XB1xE&t=787s')
 })
 
+app.use((req, res, next)=>{
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header
+      ('Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization, text/html')
+  if(req.method === 'OPTIONS'){
+      res.header('Access-Control-Allow-Origin', 'PUT, POST, GET, PATCH, DELETE')
+      return res.status(200).json({})
+  }
+  next()
+}) 
 
 
-// facebook login 
+// facebook login [ not working due to Cors issue ]
 passport.use(new FacebookStrategy({
     clientID: process.env.CLIENT_ID_FB,
     clientSecret: process.env.CLIENT_SECRET_FB,
-    callbackURL: "https://chiedimi.herokuapp.com/auth/facebook/callback"
+    callbackURL: "http://localhost:8000/auth/facebook/secret"
   },
 
   (accessToken, refreshToken, profile, cb)=>{
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+    User.findOrCreate({ facebookId: profile.id },  (err, user)=> {
       return cb(err, user);
     });
-    console.log('profile', profile)
-    console.log('accessToken', accessToken)
-    console.log('refreshToken', refreshToken)
+    // console.log('profile', profile)
+    // console.log('accessToken', accessToken)
+    // console.log('refreshToken', refreshToken)
 
     // check if user exist 
   }
-
-
 ));
-app.get('/auth/facebook', passport.authenticate('facebook'),(req, res)=> {
-  res.send('Facebook Auth')
+app.get('/auth/facebook', passport.authenticate('facebook') ,(req, res)=> { 
+  console.log('Facebook Auth')
 });
  
-app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/login' }),
+app.get('/auth/facebook/secret',passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
