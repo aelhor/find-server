@@ -6,6 +6,7 @@ const User = require('../models/userModel')
 const { checkAuth } = require('./auth')
 const maxAge = 4 * 1000 *60 *60 * 24
 require('dotenv').config('../.env')
+const fetch = require('node-fetch');
 
 router.post('/signup',async (req, res)=> { 
     const {email, password, userName} = req.body
@@ -23,7 +24,7 @@ router.post('/signup',async (req, res)=> {
                 }
                 else {
                     try{
-                        const signupToken = jwt.sign({email :email}, process.env.SECRET_KEY, {expiresIn : maxAge})
+                        const signupToken =  jwt.sign({email :email}, process.env.SECRET_KEY, {expiresIn : maxAge})
                         // create the new user 
                         const newUser =  new User({
                             email : email, 
@@ -32,16 +33,15 @@ router.post('/signup',async (req, res)=> {
                         })
                         const saveduser = await newUser.save()
                         res.cookie('jwt', signupToken ,{maxAge : maxAge})
-                        
                         return res.status(200).json({
                             message : 'User Created', 
                             newUser : {
                                 id : newUser._id ,
                                 userName : newUser.userName ,
                                 email : newUser.email,
+                                signupToken :signupToken
                             },
                         })
-
                     }
                     catch(error) { 
                         res.status(409).send(error) // 
@@ -70,7 +70,7 @@ router.post('/login', async(req, res)=>{
                 if (result){
                     // password is correct 
                     const token = jwt.sign({email : user.email}, process.env.SECRET_KEY, {expiresIn : maxAge })
-                    res.cookie('jwt', token ,{httpOnly : true, maxAge : maxAge}) // not working ?
+                    // res.cookie('jwt', token ,{httpOnly : true, maxAge : maxAge}) // not working 
                     return res.status(200).json({
                         userName : user.userName , 
                         id : user._id,
@@ -87,6 +87,70 @@ router.post('/login', async(req, res)=>{
     catch(err){
         res.status(500).send(err.message)
     }
+})
+
+// Facebook Login 
+router.post('/facebookLogin', async(req, res)=>{ 
+    const {accessToken, userID, email, name ,picture} = req.body
+    try {
+        const fbUser = await User.findOne({email : email})
+        if (fbUser) { 
+            // log him in 
+            try{
+                const token = jwt.sign({email : email}, process.env.SECRET_KEY, {expiresIn : maxAge })
+                // res.cookie('jwt', token ,{httpOnly : true, maxAge : maxAge}) // not working 
+                return res.status(200).json({
+                    msg : 'fb user already exists and he loged in ', 
+                    newUser : {
+                        id : fbUser._id , // wrong 
+                        userName : name ,
+                        signupToken :token
+                    },
+                })  
+            }
+            catch(error){
+                console.log(error)
+            }
+        }
+        else{ 
+            //create a new user  
+            try{
+                const signupToken =  jwt.sign({email :email}, process.env.SECRET_KEY, {expiresIn : maxAge})
+                bcrypt.hash(email + process.env.SECRET_KEY, 10 , async(err, hash)=> { 
+                    if (err){
+                        return res.status(500).send(err.message)
+                    }
+                    else { 
+                        // create the new user 
+                        const newUser =  new User({
+                            email : email, 
+                            userName : name,
+                            password : hash, 
+                        })
+                        const saveduser = await newUser.save()
+                        return res.status(200).json({
+                            message : 'fb User Created', 
+                            newUser : {
+                                id : newUser._id ,
+                                userName : newUser.userName ,
+                                signupToken :signupToken
+                            },
+                        
+                        })
+                    }
+                })
+                
+            }
+            catch(error) { 
+                res.status(409).send(error) // 
+            }
+
+        }
+
+    } catch (error) {
+        console.log(error)
+    } 
+
 })
 
 // get a specific user's data 
@@ -350,3 +414,4 @@ router.get('/users', async(req, res)=> {
 
 
 module.exports = router
+
