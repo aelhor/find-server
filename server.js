@@ -20,8 +20,12 @@ app.use(cookieParser())
 app.use('/', userRoute)
 app.use('/', questionRoute)
 app.get('/express', (req, res)=> { 
+<<<<<<< HEAD
   // Not Working 
   res.redirect('https://www.youtube.com/watch?v=4wnjn8XB1xE&t=787s')
+=======
+  res.redirect('https://facebook.com')
+>>>>>>> fblogin
 })
 
 app.use((req, res, next)=>{
@@ -37,6 +41,7 @@ app.use((req, res, next)=>{
 }) 
 
 
+<<<<<<< HEAD
 // facebook login [ not working due to Cors issue ]
 passport.use(new FacebookStrategy({
     clientID: process.env.CLIENT_ID_FB,
@@ -74,6 +79,8 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 });
+=======
+>>>>>>> fblogin
 
 
 
@@ -127,8 +134,5 @@ mongoose.connect(
     }, 
     ()=> console.log('db connected')
 )
-const port = process.env.PORT
 
-app.listen(port, ()=> {
-    console.log(`server on ${port}`)
-})
+app.listen( process.env.PORT, ()=>  console.log(`server on ${ process.env.PORT}`) )

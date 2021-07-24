@@ -20,12 +20,8 @@ const userSchema = new Schema({
             required: true,
             unique : true ,  
         },
-    facebookId : String ,
     following : Array,
-    followers : Array,
-    
-        
-    
+    followers : Array,    
 }, {timestamps :true} )
 
 const user = mongoose.model('User', userSchema);
