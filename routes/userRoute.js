@@ -144,9 +144,7 @@ router.post('/facebookLogin', async(req, res)=>{
             catch(error) { 
                 res.status(409).send(error) // 
             }
-
         }
-
     } catch (error) {
         console.log(error)
     } 
