@@ -30,6 +30,7 @@ router.post('/signup',async (req, res)=> {
                             email : email, 
                             userName : userName,
                             password : hash, 
+                            fbPicture : 'none'
                         })
                         const saveduser = await newUser.save()
                         res.cookie('jwt', signupToken ,{maxAge : maxAge})
@@ -92,6 +93,7 @@ router.post('/login', async(req, res)=>{
 // Facebook Login 
 router.post('/facebookLogin', async(req, res)=>{ 
     const {accessToken, userID, email, name ,picture} = req.body
+    console.log(picture)
     try {
         const fbUser = await User.findOne({email : email})
         if (fbUser) { 
@@ -100,14 +102,15 @@ router.post('/facebookLogin', async(req, res)=>{
                 const token = jwt.sign({email : email}, process.env.SECRET_KEY, {expiresIn : maxAge })
                 // res.cookie('jwt', token ,{httpOnly : true, maxAge : maxAge}) // not working 
                 return res.status(200).json({
-                    msg : 'fb user already exists and he loged in ', 
+                    msg : 'fb user already exists ', 
                     newUser : {
                         id : fbUser._id , // wrong 
                         userName : name ,
-                        fbPicture : newUser.picture , /// remember :  delete this line  
+                        fbPicture : fbUser.picture , /// remember :  delete this line  
                         signupToken :token
                     },
                 })  
+
             }
             catch(error){
                 console.log(error)
@@ -127,18 +130,18 @@ router.post('/facebookLogin', async(req, res)=>{
                             email : email, 
                             userName : name,
                             password : hash, 
-                            fbPicture : picture 
+                            fbPicture : picture.data.url
                         })
+                        console.log('3',picture.data)
                         const saveduser = await newUser.save()
                         return res.status(200).json({
-                            message : 'fb User Created', 
+                            message : 'fb User is Created', 
                             newUser : {
                                 id : newUser._id ,
                                 userName : newUser.userName ,
                                 fbPicture : newUser.picture , /// remember :  delete this line  
                                 signupToken :signupToken
-                            },
-                        
+                            },                        
                         })
                     }
                 })
