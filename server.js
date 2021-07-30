@@ -37,17 +37,6 @@ app.use((error, req, res, next)=> {
     )}
 )
 
-// deploy to heroku
-// serve static assets if in production 
-if (process.env.NODE_ENV === 'production'){
-    //set static folder
-    app.use(express.static('../frontend-jwt/build'))
-
-    app.get('*', (req, res)=>{
-        res.sendFile(path.resolve(__dirname, '../frontend-jwt', 'build', 'index.html'))
-    })
-}
-
 
 // db connection 
 mongoose.connect(

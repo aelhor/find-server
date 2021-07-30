@@ -65,7 +65,7 @@ router.post('/login', async(req, res)=>{
             // verify the password 
             bcrypt.compare(password, user.password, (error, result)=>{ 
                 if (error){
-                    return res.status(500).send(error.message)
+                    return res.status(422).send(error)
                 }
                 if (result){
                     // password is correct 
@@ -77,15 +77,15 @@ router.post('/login', async(req, res)=>{
                         token : token
                     })
                 }
-                return res.status(500).send('Invalid password ')
+                return res.status(403).send('Invalid password ')
             })
         }
         else{
-            return res.status(500).send('User Not Found  ')
+            return res.status(404).send('User Not Found')
         }
     }
     catch(err){
-        res.status(500).send(err.message)
+        res.status(404).send(err)
     }
 })
 
@@ -104,6 +104,7 @@ router.post('/facebookLogin', async(req, res)=>{
                     newUser : {
                         id : fbUser._id , // wrong 
                         userName : name ,
+                        fbPicture : newUser.picture , /// remember :  delete this line  
                         signupToken :token
                     },
                 })  
@@ -126,6 +127,7 @@ router.post('/facebookLogin', async(req, res)=>{
                             email : email, 
                             userName : name,
                             password : hash, 
+                            fbPicture : picture 
                         })
                         const saveduser = await newUser.save()
                         return res.status(200).json({
@@ -133,6 +135,7 @@ router.post('/facebookLogin', async(req, res)=>{
                             newUser : {
                                 id : newUser._id ,
                                 userName : newUser.userName ,
+                                fbPicture : newUser.picture , /// remember :  delete this line  
                                 signupToken :signupToken
                             },
                         

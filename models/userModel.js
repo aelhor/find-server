@@ -20,6 +20,10 @@ const userSchema = new Schema({
             required: true,
             unique : true ,  
         },
+    fbPicture : {
+        type : String , 
+        default : 'https://www.google.com.eg/url?sa=i&url=https%3A%2F%2Ficon-icons.com%2Ficon%2Favatar-default-user%2F92824&psig=AOvVaw1F_Zc2egWFixPcFvKWPSNj&ust=1627736164292000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCIi0pfHrivICFQAAAAAdAAAAABAO'
+    },
     following : Array,
     followers : Array,    
 }, {timestamps :true} )
