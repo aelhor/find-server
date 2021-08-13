@@ -18,8 +18,7 @@ const questionScema = new Schema({
         required : true
     },
     likes : {
-        type : Array,
-        default : []
+        type: Array 
     }
 
 },{timestamps : true})

@@ -6,7 +6,7 @@ require('dotenv').config('../.env')
 const { checkAuth } = require('./auth')
 
 // get all the ques for a specific user 
-router.get('/questions/:userID' ,checkAuth ,async(req, res)=> { 
+router.get('/questions/:userID'  ,async(req, res)=> { 
     const userId = req.params.userID 
     try{
          // check if the userId is exsit 
@@ -31,7 +31,7 @@ router.get('/questions/:userID' ,checkAuth ,async(req, res)=> {
 })
 
 // get a specific question
-router.get('/question/:quesId', checkAuth, async(req, res)=>{ 
+router.get('/question/:quesId', async(req, res)=>{ 
     const quesId = req.params.quesId
     try {
         const ques = await Ques.findOne({_id : quesId})
@@ -42,7 +42,7 @@ router.get('/question/:quesId', checkAuth, async(req, res)=>{
 })
 
 // ask a question to specific user 
-router.post('/questions/ask/:userId',checkAuth, async(req, res)=>{ 
+router.post('/questions/ask/:userId', async(req, res)=>{ 
     const {body} = req.body 
     const userId = req.params.userId
     if (body){
@@ -71,7 +71,6 @@ router.post('/questions/ask/:userId',checkAuth, async(req, res)=>{
         } 
         catch (error) {
             res.status(500).send(error)
-    
         }
     }
     else{
@@ -143,8 +142,7 @@ router.delete('/questions/delete/:id',checkAuth , async(req, res)=> {
         })
     } 
     catch (error) {
-        res.status(500).send(error.message)
-
+        res.status(500).send(error)
     }
 })
 

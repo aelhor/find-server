@@ -31,7 +31,8 @@ app.use((error, req, res, next)=> {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode  
     res.status (statusCode)
     res.json({ 
-        message : error.message, 
+        message : error.message,
+        error : error,  
         // stack :process.env.NODE_ENV === 'PRODUCTION ' ? 'Babe, hi': error.stack // hlpful for debuging tellingg u where the err is   
         }
     )}

@@ -158,7 +158,7 @@ router.post('/facebookLogin', async(req, res)=>{
 })
 
 // get a specific user's data 
-router.get('/users/:userId', checkAuth, async(req, res)=>{ 
+router.get('/users/:userId', async(req, res)=>{ 
     const id = req.params.userId
     try {
         const user = await User.findOne({_id : id})
@@ -170,7 +170,7 @@ router.get('/users/:userId', checkAuth, async(req, res)=>{
         }
     } 
     catch (error) {
-        res.status(500).send(error.message)    
+        res.status(500).send(error)    
     }
 }) 
 
