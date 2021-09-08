@@ -310,6 +310,8 @@ const escapeRegex = (text)=> {
 router.get('/search' , async(req, res)=> { 
     const q = req.query.q
     console.log('q = ', q)
+    if (!q) 
+        return res.status(400).send({})
     try {        
         const result =await User.aggregate([
             {
