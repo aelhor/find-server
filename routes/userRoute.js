@@ -303,105 +303,49 @@ router.post('/users/unfollow/:activeUserId', checkAuth, async(req, res)=>{
     }
 })
 
-// send friend request 
-router.post('/users/sendfriendreq/:userId', async(req, res)=> { 
-    const reqSenderId = req.body.reqSenderId
-    const userId = req.params.userId 
-    try {
-        const friendsList = await User.updateOne( {_id : userId },
-            { $addToSet : // add the item if it doesn't exist 
-                {
-                    friendRequests : reqSenderId
-                } 
+const escapeRegex = (text)=> {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+// search for a user 
+router.get('/search' , async(req, res)=> { 
+    const q = req.query.q
+    console.log('q = ', q)
+    try {        
+        const result =await User.aggregate([
+            {
+              $search: {
+                "text": {
+                  "path": "userName",
+                  "query": q,
+                  "fuzzy": {
+                    "maxEdits": 1,
+                    "maxExpansions": 100,
+                    "prefixLength" :1
+                  }
+                }
+              }
+            },
+            {
+              $limit: 10
+            },
+            {
+                $project: {
+                  "_id": 1,
+                  "userName": 1,
+                  'fbPicture' : 1,
+                }
             }
-             )
-        res.status(200).json({
-            message : 'Friend Reqest sent',
-            user : friendsList
-        })
-        
-    } catch (error) {
-        res.status(500).send(error.message)
+        ])
+        res.status(200).send(result)
+    }    
+    catch(error) {
+        res.status(500).send(error)
     }
 })
 
-// cancle friend request 
-router.post('/users/canclefriendreq/:userId', async(req, res)=>  {
-    const reqSenderId = req.body.reqSenderId
-    const userId = req.params.userId 
-    
-    try {
-        const friendsList = await User.updateOne( {_id : userId },
-            { $pull : // add the item if it doesn't exist 
-                {
-                    friendRequests : reqSenderId
-                } 
-            }
-             )
-        res.status(200).json({
-            message : 'Frieng Reqest cancled',
-            user : friendsList
-        })
-        
-    } catch (error) {
-        res.status(500).send(error.message)
-    }
+router.get('/test', (req, res)=> { 
+    res.status(200).send('WORKING ^_^')
 })
-
-// accept friend request 
-router.post('/users/addfriend/:userId', async(req, res)=> { 
-    const userId = req.params.userId
-    const friendId = req.body.friendId
-    try {
-        // add friendId to friends list 
-        const friendsList = await User.updateOne( {_id : userId },
-            { $addToSet : // add the item if it doesn't exist 
-                {
-                    friends : friendId
-                } 
-            }
-             )
-        // delete friendId from friendRequests list 
-        const friendRequestsList = await User.updateOne( {_id : userId },
-            { $pull : // add the item if it doesn't exist 
-                {
-                    friendRequests : friendId
-                } 
-            }
-             )
-            
-        res.status(200).json({
-            message : 'Frind added & deleted from requests list',
-            user : friendsList,
-            friendRequestsList :friendRequestsList
-        })
-    } 
-    catch (error) {
-        res.status(500).send(error.message)
-    }
-})
-// unfriend 
-router.post('/users/unfriend/:userId', async(req, res)=>{ 
-    const userId = req.params.userId
-    const friendId = req.body.friendId
-    try {
-        const friendsList = await User.updateOne( {_id : userId },
-            { $pull :  
-                {
-                    friends : friendId
-                } 
-            }
-             )
-        res.status(200).json({
-            message : 'Frind Deleted',
-            user : friendsList
-        })
-    } 
-    catch (error) {
-        res.status(500).send(error.message)
-    }  
-})
-
 // development route
 router.get('/users', async(req, res)=> { 
     try { 
