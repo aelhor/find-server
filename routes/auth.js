@@ -6,7 +6,7 @@ module.exports.checkAuth = (req ,res , next) => {
         console.log('token :', token)
         if (token == null) return res.status(401).send('Not auth')
         try {
-                let decoded = jwt.verify(token, process.env.SECRET_KEY);
+                let decoded =  jwt.verify(token, process.env.SECRET_KEY);
                 console.log(decoded)
                 next()
             } 

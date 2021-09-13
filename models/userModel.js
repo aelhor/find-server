@@ -23,6 +23,10 @@ const userSchema = new Schema({
     fbPicture : {
         type : String , 
     },
+    verified : {
+        type: Boolean, 
+        default : false
+    },
     following : Array,
     followers : Array,    
 }, {timestamps :true} )

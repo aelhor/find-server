@@ -6,7 +6,10 @@ const User = require('../models/userModel')
 const { checkAuth } = require('./auth')
 const maxAge = 4 * 1000 *60 *60 * 24
 require('dotenv').config('../.env')
-const fetch = require('node-fetch');
+const mailgun = require("mailgun-js");
+const mg = mailgun({apiKey: process.env.MAILGUN_API_KEY , domain: process.env.MAILGUN_DOMAIN});
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.post('/signup',async (req, res)=> { 
     const {email, password, userName} = req.body
@@ -14,45 +17,101 @@ router.post('/signup',async (req, res)=> {
     try{
         const signinUser = await User.findOne({email : email})
         if (signinUser) { 
-            return res.status(409).send('User Name or Email already exist')
+            return res.status(409).send('User already exist')
         }   
         else { 
-            // hash the passworrd 
-            bcrypt.hash(password, 10, async(error, hash)=> { 
-                if (error) { 
-                    return res.status(500).send(error.message)
-                }
-                else {
-                    try{
-                        const signupToken =  jwt.sign({email :email}, process.env.SECRET_KEY, {expiresIn : maxAge})
-                        // create the new user 
-                        const newUser =  new User({
-                            email : email, 
-                            userName : userName,
-                            password : hash, 
-                            fbPicture : 'none'
-                        })
-                        const saveduser = await newUser.save()
-                        res.cookie('jwt', signupToken ,{maxAge : maxAge})
-                        return res.status(200).json({
-                            message : 'User Created', 
-                            newUser : {
-                                id : newUser._id ,
-                                userName : newUser.userName ,
-                                email : newUser.email,
-                                signupToken :signupToken
-                            },
-                        })
+            try{
+                const hash =  await bcrypt.hash(password, 10)
+                // create the new user verified = false
+                const newUser =  new User({
+                    email : email, 
+                    userName : userName,
+                    password : hash, 
+                    fbPicture : 'none'
+                })
+                await newUser.save() 
+                const token =   jwt.sign({ email: email }, process.env.SECRET_KEY)
+                
+                const msg = {
+                    to: email,
+                    from: 'arayes017@gmail.com', // Use the email address or domain you verified above
+                    subject: 'Email verify',
+                    text: 'Verify your Find email',
+                    html: `
+                        <button> <a href='http://localhost:8000/emailverify?verifyToken=${token}'> Verify your email </a> </button?
+                    `,
+                  };
+                try {
+                    await sgMail.send(msg);
+                    return res.status(200).json({
+                        msg : `email sent to ${email} please confirm your email`,
+                        userName : newUser.userName , 
+                        id : newUser._id,
+                        token : token
+                    })
+                } 
+                catch (error) {
+                    console.error(error);
+                    if (error.response) {
+                        console.error(error.response.body)
                     }
-                    catch(error) { 
-                        res.status(409).send(error) // 
-                    }
                 }
-            })
+            }
+            catch(error) { 
+                res.status(409).send(error) // 
+            }        
         }
     }
     catch(error){
         res.status(503).send(error.message)
+    }
+})
+// email verification 
+// [x]  add verified 'boolian' to user Model  
+// [x]  save user in db with verified = false 
+// [x]  send email with a verifyToken 
+// [x]  log the user in 'send him a loginToeken'  
+// [x]  new route to verify this token  and make verified = true 
+// [ ]  test signup,emailverify , signup component
+router.get('/resendemail', async(req, res)=>{
+    const {email} = req.body
+    const token =  jwt.sign({ email: email }, process.env.SECRET_KEY)
+   
+    const msg = {
+        to: email,
+        from: 'arayes017@gmail.com', // Use the email address or domain you verified above
+        subject: 'Email verify',
+        text: 'Verify your Find email',
+        html: `
+            <button> <a href='http://localhost:8000/emailverify?verifyToken=${token}'> Verify your email </a> </button?
+        `,
+      };
+    try {
+        await sgMail.send(msg);
+        return res.status(200).json({
+            msg : `email resent to ${email}`,
+        })
+    } 
+    catch (error) {
+        console.error(error);
+        if (error.response) {
+            console.error(error.response.body)
+        }
+    }
+
+})
+
+router.get('/emailverify', async(req, res)=> { 
+    const {verifyToken} = req.query 
+    try {
+        let decoded = jwt.verify(verifyToken, process.env.SECRET_KEY);
+        let user = await User.findOneAndUpdate({email : decoded.email}, {$set :{ verified : true}}, {new : true} )
+        res.json({
+            msg : 'email verified successfully', 
+            user : user 
+        })
+    } catch (error) {
+        res.send(error)
     }
 })
 
@@ -130,7 +189,8 @@ router.post('/facebookLogin', async(req, res)=>{
                             email : email, 
                             userName : name,
                             password : hash, 
-                            fbPicture : picture.data.url
+                            fbPicture : picture.data.url, 
+                            verified : true
                         })
                         console.log('3',picture.data)
                         const saveduser = await newUser.save()
@@ -365,3 +425,11 @@ router.get('/users', async(req, res)=> {
 
 module.exports = router
 
+
+// The Office
+// Kim's Convenience
+// Friends
+// Community
+// Brooklyn 99
+// The Good Place
+// The Big Bang Theory

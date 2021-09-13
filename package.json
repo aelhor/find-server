@@ -14,6 +14,7 @@
   "author": "aelhor",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
@@ -21,6 +22,9 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "mailgun": "^0.5.0",
+    "mailgun-js": "^0.6.7",
+    "mailgun.js": "^3.5.8",
     "mongoose": "^5.10.6",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.4",
