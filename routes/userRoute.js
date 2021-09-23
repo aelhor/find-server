@@ -66,36 +66,28 @@ router.post('/signup',async (req, res)=> {
         res.status(503).send(error.message)
     }
 })
-// email verification 
-// [x]  add verified 'boolian' to user Model  
-// [x]  save user in db with verified = false 
-// [x]  send email with a verifyToken 
-// [x]  log the user in 'send him a loginToeken'  
-// [x]  new route to verify this token  and make verified = true 
-// [ ]  test signup,emailverify , signup component
 router.get('/resendemail', async(req, res)=>{
-    const {email} = req.body
+    const {email} = req.query;
     const token =  jwt.sign({ email: email }, process.env.SECRET_KEY)
    
     const msg = {
         to: email,
         from: 'arayes017@gmail.com', // Use the email address or domain you verified above
         subject: 'Email verify',
-        text: 'Verify your Find email',
+        text: 'Please click the button below to verify your Find email',
         html: `
-            <button> <a href='http://localhost:8000/emailverify?verifyToken=${token}'> Verify your email </a> </button?
+            <button> <a href='http://localhost:8000/emailverify?verifyToken=${token}'> Verify your email </a> </button>
         `,
       };
     try {
         await sgMail.send(msg);
-        return res.status(200).json({
-            msg : `email resent to ${email}`,
-        })
+        console.log(email)
+        return res.status(200).send( `email resent to ${email}`)
     } 
     catch (error) {
         console.error(error);
         if (error.response) {
-            console.error(error.response.body)
+            console.error('Error : ',error.response.body)
         }
     }
 
@@ -105,11 +97,11 @@ router.get('/emailverify', async(req, res)=> {
     const {verifyToken} = req.query 
     try {
         let decoded = jwt.verify(verifyToken, process.env.SECRET_KEY);
-        let user = await User.findOneAndUpdate({email : decoded.email}, {$set :{ verified : true}}, {new : true} )
-        res.json({
-            msg : 'email verified successfully', 
-            user : user 
-        })
+        await User.findOneAndUpdate({email : decoded.email}, {$set :{ verified : true}}, {new : true} )
+        // res.json({
+        //     msg : 'email verified successfully', 
+        // })
+        res.redirect('https://asky-chidemi.herokuapp.com:3000')
     } catch (error) {
         res.send(error)
     }
@@ -406,7 +398,7 @@ router.get('/search' , async(req, res)=> {
 })
 
 router.get('/test', (req, res)=> { 
-    res.status(200).send('WORKING ^_^')
+    res.status(200).send('Ya ^_^' )
 })
 // development route
 router.get('/users', async(req, res)=> { 
@@ -425,11 +417,4 @@ router.get('/users', async(req, res)=> {
 
 module.exports = router
 
-
-// The Office
-// Kim's Convenience
-// Friends
-// Community
-// Brooklyn 99
-// The Good Place
-// The Big Bang Theory
+  
