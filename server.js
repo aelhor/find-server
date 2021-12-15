@@ -12,9 +12,12 @@ require('dotenv').config()
 app.use(cors())
 app.use(express.json()) 
 app.use(cookieParser())
-
+app.use('/profilePics', express.static('profilePics'))
 
 // routes
+app.get('/', (req, res)=> { 
+    res.send('Hello >>>>>>>>>>>>>>>')
+})
 app.use('/', userRoute)
 app.use('/', questionRoute)
 

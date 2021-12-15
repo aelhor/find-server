@@ -10,10 +10,24 @@ const mailgun = require("mailgun-js");
 const mg = mailgun({apiKey: process.env.MAILGUN_API_KEY , domain: process.env.MAILGUN_DOMAIN});
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const multer  = require('multer')
+const storage = multer.diskStorage({
+    destination:  (req, file, cb)=> {
+      cb(null, './profilePics')
+    },
+    filename:  (req, file, cb)=> {
+    //   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '_' + file.originalname)
+    }
+  })
+  
+const upload = multer({ storage: storage })
 
-router.post('/signup',async (req, res)=> { 
+
+router.post('/signup',upload.single('profilePic') , async (req, res)=> { 
     const {email, password, userName} = req.body
-    // CHECK is the user already exist
+    console.log(req.file)
+    // CHECK is the user already exist 
     try{
         const signinUser = await User.findOne({email : email})
         if (signinUser) { 
@@ -27,7 +41,8 @@ router.post('/signup',async (req, res)=> {
                     email : email, 
                     userName : userName,
                     password : hash, 
-                    fbPicture : 'none'
+                    fbPicture : 'none',
+                    profilePic : req.file.path
                 })
                 await newUser.save() 
                 const token =   jwt.sign({ email: email }, process.env.SECRET_KEY)
@@ -101,7 +116,7 @@ router.get('/emailverify', async(req, res)=> {
         // res.json({
         //     msg : 'email verified successfully', 
         // })
-        res.redirect('https://asky-chidemi.herokuapp.com:3000')
+        res.redirect(process.env.DEV_CLIENT_URL)
     } catch (error) {
         res.send(error)
     }

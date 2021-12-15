@@ -14,14 +14,17 @@ const userSchema = new Schema({
             required: true, 
             minlength : 8,
         }, 
-    userName : 
-        {
+    userName : {
             type : String,
             required: true,
             unique : true ,  
         },
     fbPicture : {
         type : String , 
+    },
+    profilePic : {
+        type : String , 
+        // require : true 
     },
     verified : {
         type: Boolean, 

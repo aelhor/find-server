@@ -8,25 +8,16 @@ const { checkAuth } = require('./auth')
 // get all the ques for a specific user 
 router.get('/questions/:userID'  ,async(req, res)=> { 
     const userId = req.params.userID 
+
     try{
-         // check if the userId is exsit 
-        const user = await User.findOne({_id : userId})
-        if (user){
-            try{
-                const questions = (await Ques.find()).filter(qu=> qu.askedTo === userId)
-                res.status(200).json(questions)
-            }
-            catch(error){ 
-                res.status(500).send(error)
-            }
-        }
-        else{
-            res.status(409).send('user not found')
-        }
+        const questions = await Ques.find({askedTo : userId})
+        res.status(200).json(questions)
     }
-    catch(error){
+    catch(error){ 
         res.status(500).send(error)
     }
+
+    
     
 })
 
